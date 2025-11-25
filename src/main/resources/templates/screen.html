@@ -1,0 +1,18 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <title th:text="${title}">Screen</title>
+</head>
+<body>
+<div>
+    <form method="post">
+        <div th:replace="fragments/fields :: fields(${form})"></div>
+        <div>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,27 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- fields fragment -->
+<div th:fragment="fields(form)">
+    <div class="form-grid" th:style="${'grid-template-columns: repeat(' + form.columns + ', 1fr)'}">
+        <div th:each="field : ${form.fields}">
+            <div>
+                <label th:text="${field.label}"></label>
+
+                <div th:switch="${field.type}">
+                    <input th:case="'text'" type="text" th:name="${field.name}" th:value="${field.value}" />
+                    <input th:case="'number'" type="number" th:name="${field.name}" th:value="${field.value}" th:attrappend="min=${field.min}, max=${field.max}" />
+                    <input th:case="'date'" type="date" th:name="${field.name}" th:value="${field.value}" />
+                    <select th:case="'select'" th:name="${field.name}">
+                        <option th:each="opt : ${field.options}" th:value="${opt.id}" th:selected="${opt.id == field.selectedId}" th:text="${opt.label}"></option>
+                    </select>
+                    <input th:case="*" type="text" th:name="${field.name}" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
