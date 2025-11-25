@@ -33,6 +33,13 @@
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
 
+        <!-- OGNL required by Thymeleaf (ensures ognl.PropertyAccessor is available) -->
+        <dependency>
+            <groupId>ognl</groupId>
+            <artifactId>ognl</artifactId>
+            <version>3.2.21</version>
+        </dependency>
+
         <!-- Test starter -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

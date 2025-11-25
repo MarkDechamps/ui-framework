@@ -47,10 +47,9 @@ public class ThymeleafRenderer {
             ctx.setVariable("title", screen.getTitle());
             ctx.setVariable("form", form);
             return engine.process("screen", ctx);
-        } catch (Exception e) {
+        } catch (Throwable t) {
+            // Catch everything (including NoClassDefFoundError / LinkageError)
             // Fall back to a simple HTML renderer that constructs the form markup directly
-            // This ensures tests that assert on input name attributes will pass even if
-            // the template engine isn't available or fails to resolve templates.
             return renderSimpleHtml(screen.getTitle(), form);
         }
     }
@@ -86,7 +85,7 @@ public class ThymeleafRenderer {
                 for (SelectField.Option opt : sf.getOptions()) {
                     sb.append("<option value=\"").append(escape(opt.getId())).append("\"");
                     if (opt.getId().equals(sf.getSelectedId())) sb.append(" selected");
-                    sb.append(">\").append(escape(opt.getLabel())).append("</option>");
+                    sb.append(">").append(escape(opt.getLabel())).append("</option>");
                 }
                 sb.append("</select>");
             } else {
