@@ -30,5 +30,10 @@ public class TextField extends Field {
     public String getType() {
         return "text";
     }
-}
 
+    // Concrete fluent override for icon to preserve TextField type in chaining
+    public TextField icon(String icon) {
+        super.icon(icon);
+        return this;
+    }
+}

@@ -1,18 +1,19 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout :: layout">
 <head>
     <meta charset="utf-8" />
     <title th:text="${title}">Screen</title>
 </head>
 <body>
-<div>
-    <form method="post">
-        <div th:replace="fragments/fields :: fields(${form})"></div>
-        <div>
-            <button type="submit">Submit</button>
-        </div>
-    </form>
-</div>
+<section th:fragment="content" class="screen">
+    <div class="form-card">
+        <form method="post" class="form-body">
+            <div th:replace="fragments/fields :: fields(${form})"></div>
+            <div class="form-actions">
+                <button type="submit" class="btn primary">Submit</button>
+            </div>
+        </form>
+    </div>
+</section>
 </body>
 </html>
-

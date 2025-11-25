@@ -32,5 +32,9 @@ public class NumberField extends Field {
     public String getType() {
         return "number";
     }
-}
 
+    public NumberField icon(String icon) {
+        super.icon(icon);
+        return this;
+    }
+}

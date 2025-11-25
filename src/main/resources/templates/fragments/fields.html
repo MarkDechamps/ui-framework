@@ -5,19 +5,36 @@
 <!-- fields fragment -->
 <div th:fragment="fields(form)">
     <div class="form-grid" th:style="${'grid-template-columns: repeat(' + form.columns + ', 1fr)'}">
-        <div th:each="field : ${form.fields}">
-            <div>
-                <label th:text="${field.label}"></label>
+        <div th:each="field : ${form.fields}" class="form-item">
+            <label class="form-label" th:text="${field.label}" style="display:block;margin-bottom:10px;"></label>
 
-                <div th:switch="${field.type}">
-                    <input th:case="'text'" type="text" th:name="${field.name}" th:value="${field.value}" />
-                    <input th:case="'number'" type="number" th:name="${field.name}" th:value="${field.value}" th:attrappend="min=${field.min}, max=${field.max}" />
-                    <input th:case="'date'" type="date" th:name="${field.name}" th:value="${field.value}" />
-                    <select th:case="'select'" th:name="${field.name}">
+            <div class="form-control" th:switch="${field.type}">
+
+                <div th:case="'text'" class="input-with-icon">
+                    <span th:if="${field.icon}" class="input-icon" th:utext="${#strings.equals(field.icon,'user') ? '<svg width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'><path d=\'M12 12c2.7614 0 5-2.2386 5-5s-2.2386-5-5-5-5 2.2386-5 5 2.2386 5 5 5zM4 20.25C4 16.798 7.5817 14 12 14s8 2.798 8 6.25V22H4v-1.75z\' stroke=\'#374151\' stroke-width=\'1.2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/></svg>' : ( #strings.equals(field.icon,'calendar') ? '<svg width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'><path d=\'M7 10h10M7 14h4M3 7h18M7 3v4M17 3v4\' stroke=\'#374151\' stroke-width=\'1.2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/></svg>' : '<svg width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'><path d=\'M3 12h18M12 3v18\' stroke=\'#374151\' stroke-width=\'1.2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/></svg>' ) }"></span>
+                    <input type="text" class="input" th:name="${field.name}" th:value="${field.value}" />
+                </div>
+
+                <div th:case="'number'" class="input-with-icon">
+                    <span th:if="${field.icon}" class="input-icon" th:utext="${'<svg width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'><path d=\'M3 12h18M12 3v18\' stroke=\'#374151\' stroke-width=\'1.2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/></svg>'}"></span>
+                    <input type="number" class="input" th:name="${field.name}" th:value="${field.value}" th:attrappend="min=${field.min}, max=${field.max}" />
+                </div>
+
+                <div th:case="'date'" class="input-with-icon">
+                    <span th:if="${field.icon}" class="input-icon" th:utext="${'<svg width=\'16\' height=\'16\' viewBox=\'0 0 24 24\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'><path d=\'M3 7h18M7 3v4M17 3v4M7 14h10\' stroke=\'#374151\' stroke-width=\'1.2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'/></svg>'}"></span>
+                    <input type="date" class="input" th:name="${field.name}" th:value="${field.value}" />
+                </div>
+
+                <div th:case="'select'">
+                    <select class="input" th:name="${field.name}">
                         <option th:each="opt : ${field.options}" th:value="${opt.id}" th:selected="${opt.id == field.selectedId}" th:text="${opt.label}"></option>
                     </select>
-                    <input th:case="*" type="text" th:name="${field.name}" />
                 </div>
+
+                <div th:case="*">
+                    <input type="text" class="input" th:name="${field.name}" />
+                </div>
+
             </div>
         </div>
     </div>

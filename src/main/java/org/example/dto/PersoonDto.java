@@ -20,6 +20,11 @@ public class PersoonDto extends BaseDto {
         opts.add(new SelectField.Option("M", "Man"));
         opts.add(new SelectField.Option("V", "Vrouw"));
         this.geslacht.options(opts);
+
+        // set icons after construction to preserve concrete types for chaining
+        this.naam.icon("user");
+        this.voornaam.icon("user");
+        this.geboorteDatum.icon("calendar");
+        this.leeftijd.icon("hash");
     }
 }
-

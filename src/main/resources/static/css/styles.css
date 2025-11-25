@@ -1,0 +1,98 @@
+/* styles for the UI framework demo */
+:root{
+  --bg: #f6f8fb;
+  --card: #ffffff;
+  --accent: #2563eb; /* blue-600 */
+  --muted: #6b7280;
+  --radius: 10px;
+}
+body{
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: linear-gradient(180deg, #eef2ff 0%, var(--bg) 100%);
+  color: #111827;
+  margin: 0;
+  padding: 24px;
+}
+.page-container{
+  max-width: 980px;
+  margin: 0 auto;
+}
+.page-header h1{
+  margin: 0 0 18px 0;
+  font-size: 22px;
+}
+.form-card{
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+  padding: 18px;
+}
+.form-grid{
+  display:grid;
+  grid-gap: 12px 18px;
+  margin-bottom: 12px;
+  /* by default the fragment sets grid-template-columns inline (repeat(n,1fr)).
+     media queries below will override that inline style on small screens using !important */
+}
+.form-item{
+  display:flex;
+  flex-direction:column;
+  /* ensure spacing between label and control */
+}
+.form-label{
+  display:block;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 10px; /* increased spacing so label isn't stuck to input */
+}
+.input{
+  border: 1px solid #e6e9ef;
+  padding: 10px 12px;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+  background: white;
+}
+.input:focus{ box-shadow: 0 0 0 4px rgba(37,99,235,0.08); border-color: var(--accent); }
+.form-actions{ display:flex; justify-content:flex-end; gap: 8px; margin-top: 8px; }
+.btn{ padding: 10px 14px; border-radius: 8px; border:none; cursor:pointer; font-weight:600; }
+.btn.primary{ background: var(--accent); color:white; }
+.btn.secondary{ background: transparent; border: 1px solid #e6e9ef; color: var(--muted); }
+.footer{ margin-top: 20px; font-size:12px; color:var(--muted); }
+
+/* icon styles */
+.input-with-icon{ display:flex; align-items:center; gap:8px; }
+.input-icon{ width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; color:#374151; }
+.input-icon svg{ display:block; }
+.input-icon{ margin-right:6px; }
+.input-with-icon .input{ flex:1; }
+
+/* ensure selects and inputs have consistent height */
+.input, select.input{ height:40px; }
+
+/* Responsive rules */
+/* Small phones: 1 column form, full-width button */
+@media (max-width: 600px) {
+  .page-container{ padding: 12px; }
+  .form-card{ padding: 14px; }
+  .page-header h1{ font-size: 18px; }
+  .form-grid{ grid-template-columns: 1fr !important; }
+  .form-actions{ flex-direction: column-reverse; gap: 10px; align-items: stretch; }
+  .form-actions .btn{ width: 100%; }
+}
+
+/* Tablets / small desktops: prefer 2 columns */
+@media (min-width: 601px) and (max-width: 1000px) {
+  .form-grid{ grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* Large desktops: let inline grid-template-columns control columns (3/4/5 as provided)
+   but ensure max column width to keep readable forms */
+@media (min-width: 1200px) {
+  .form-card{ padding: 22px; }
+}
+
+/* Accessibility: reduce motion for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .input:focus{ box-shadow: none; }
+}

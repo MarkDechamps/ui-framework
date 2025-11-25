@@ -20,5 +20,9 @@ public class DateField extends Field {
     public String getType() {
         return "date";
     }
-}
 
+    public DateField icon(String icon) {
+        super.icon(icon);
+        return this;
+    }
+}

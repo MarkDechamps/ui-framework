@@ -36,6 +36,11 @@ public class SelectField extends Field {
         return "select";
     }
 
+    public SelectField icon(String icon) {
+        super.icon(icon);
+        return this;
+    }
+
     public static class Option {
         private final String id;
         private final String label;
@@ -54,4 +59,3 @@ public class SelectField extends Field {
         }
     }
 }
-
