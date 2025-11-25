@@ -18,6 +18,9 @@ public abstract class AbstractScreen<T> implements Screen {
         return title;
     }
 
+    public T getDto() {
+        return dto;
+    }
+
     public abstract Form createForm(FormBuilder formBuilder, T dto);
 }
-
