@@ -15,6 +15,8 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 public class ThymeleafRenderer {
     private static final Logger log = LoggerFactory.getLogger(ThymeleafRenderer.class);
     private final TemplateEngine engine;
@@ -29,6 +31,11 @@ public class ThymeleafRenderer {
 
         engine = new TemplateEngine();
         engine.setTemplateResolver(resolver);
+    }
+
+    // Additional constructor to support unit testing with a mock TemplateEngine
+    ThymeleafRenderer(TemplateEngine engine) {
+        this.engine = engine;
     }
 
     // Public entry keeps wildcard for callers, delegate to a typed helper to capture the wildcard
@@ -72,57 +79,61 @@ public class ThymeleafRenderer {
         sb.append("<main class=\"page-main\">\n");
         sb.append("<div class=\"form-card\">\n");
         sb.append("<form method=\"post\" class=\"form-body\">\n");
-        sb.append("<div class=\"form-grid\" style=\"grid-template-columns: repeat("+form.getColumns()+", 1fr)\">\n");
+        sb.append("<div class=\"form-rows\">\n");
 
-        for (Field f : form.getFields()) {
-            sb.append("<div class=\"form-item\">\n");
-            sb.append("<label class=\"form-label\">").append(escape(f.getLabel())).append("</label>\n");
+        List<List<Field>> rows = form.getRows();
+        for (List<Field> row : rows) {
+            sb.append("<div class=\"form-row\" style=\"grid-template-columns: repeat("+form.getColumns()+", 1fr)\">\n");
+            for (Field f : row) {
+                sb.append("<div class=\"form-item\">\n");
+                sb.append("<label class=\"form-label\">").append(escape(f.getLabel())).append("</label>\n");
 
-            // render icon-aware wrapper
-            String icon = f.getIcon();
-            boolean hasIcon = icon != null && !icon.isEmpty();
+                String icon = f.getIcon();
+                boolean hasIcon = icon != null && !icon.isEmpty();
 
-            if (f instanceof TextField) {
-                TextField tf = (TextField) f;
-                if (hasIcon) sb.append("<div class=\"input-with-icon\">\n");
-                if (hasIcon) sb.append("<span class=\"input-icon\">\n").append(getSvgForIcon(icon)).append("</span>");
-                sb.append("<input type=\"text\" class=\"input\" name=\"").append(escape(tf.getName())).append("\"");
-                if (tf.getValue() != null) sb.append(" value=\"").append(escape(tf.getValue())).append("\"");
-                sb.append(" />\n");
-                if (hasIcon) sb.append("</div>\n");
-            } else if (f instanceof NumberField) {
-                NumberField nf = (NumberField) f;
-                if (hasIcon) sb.append("<div class=\"input-with-icon\">\n");
-                if (hasIcon) sb.append("<span class=\"input-icon\">\n").append(getSvgForIcon(icon)).append("</span>");
-                sb.append("<input type=\"number\" class=\"input\" name=\"").append(escape(nf.getName())).append("\"");
-                if (nf.getValue() != null) sb.append(" value=\"").append(nf.getValue()).append("\"");
-                if (nf.getMin() != null) sb.append(" min=\"").append(nf.getMin()).append("\"");
-                if (nf.getMax() != null) sb.append(" max=\"").append(nf.getMax()).append("\"");
-                sb.append(" />\n");
-                if (hasIcon) sb.append("</div>\n");
-            } else if (f instanceof DateField) {
-                DateField df = (DateField) f;
-                if (hasIcon) sb.append("<div class=\"input-with-icon\">\n");
-                if (hasIcon) sb.append("<span class=\"input-icon\">\n").append(getSvgForIcon(icon)).append("</span>");
-                sb.append("<input type=\"date\" class=\"input\" name=\"").append(escape(df.getName())).append("\"");
-                if (df.getValue() != null) sb.append(" value=\"").append(escape(df.getValue())).append("\"");
-                sb.append(" />\n");
-                if (hasIcon) sb.append("</div>\n");
-            } else if (f instanceof SelectField) {
-                SelectField sf = (SelectField) f;
-                sb.append("<div>");
-                sb.append("<select class=\"input\" name=\"").append(escape(sf.getName())).append("\">\n");
-                for (SelectField.Option opt : sf.getOptions()) {
-                    sb.append("<option value=\"").append(escape(opt.getId())).append("\"");
-                    if (opt.getId().equals(sf.getSelectedId())) sb.append(" selected");
-                    sb.append(">").append(escape(opt.getLabel())).append("</option>\n");
+                if (f instanceof TextField) {
+                    TextField tf = (TextField) f;
+                    if (hasIcon) sb.append("<div class=\"input-with-icon\">\n");
+                    if (hasIcon) sb.append("<span class=\"input-icon\">\n").append(getSvgForIcon(icon)).append("</span>");
+                    sb.append("<input type=\"text\" class=\"input\" name=\"").append(escape(tf.getName())).append("\"");
+                    if (tf.getValue() != null) sb.append(" value=\"").append(escape(tf.getValue())).append("\"");
+                    sb.append(" />\n");
+                    if (hasIcon) sb.append("</div>\n");
+                } else if (f instanceof NumberField) {
+                    NumberField nf = (NumberField) f;
+                    if (hasIcon) sb.append("<div class=\"input-with-icon\">\n");
+                    if (hasIcon) sb.append("<span class=\"input-icon\">\n").append(getSvgForIcon(icon)).append("</span>");
+                    sb.append("<input type=\"number\" class=\"input\" name=\"").append(escape(nf.getName())).append("\"");
+                    if (nf.getValue() != null) sb.append(" value=\"").append(nf.getValue()).append("\"");
+                    if (nf.getMin() != null) sb.append(" min=\"").append(nf.getMin()).append("\"");
+                    if (nf.getMax() != null) sb.append(" max=\"").append(nf.getMax()).append("\"");
+                    sb.append(" />\n");
+                    if (hasIcon) sb.append("</div>\n");
+                } else if (f instanceof DateField) {
+                    DateField df = (DateField) f;
+                    if (hasIcon) sb.append("<div class=\"input-with-icon\">\n");
+                    if (hasIcon) sb.append("<span class=\"input-icon\">\n").append(getSvgForIcon(icon)).append("</span>");
+                    sb.append("<input type=\"date\" class=\"input\" name=\"").append(escape(df.getName())).append("\"");
+                    if (df.getValue() != null) sb.append(" value=\"").append(escape(df.getValue())).append("\"");
+                    sb.append(" />\n");
+                    if (hasIcon) sb.append("</div>\n");
+                } else if (f instanceof SelectField) {
+                    SelectField sf = (SelectField) f;
+                    sb.append("<div>");
+                    sb.append("<select class=\"input\" name=\"").append(escape(sf.getName())).append("\">\n");
+                    for (SelectField.Option opt : sf.getOptions()) {
+                        sb.append("<option value=\"").append(escape(opt.getId())).append("\"");
+                        if (opt.getId().equals(sf.getSelectedId())) sb.append(" selected");
+                        sb.append(">").append(escape(opt.getLabel())).append("</option>\n");
+                    }
+                    sb.append("</select>");
+                    sb.append("</div>\n");
+                } else {
+                    sb.append("<input type=\"text\" class=\"input\" name=\"").append(escape(f.getName())).append("\" />\n");
                 }
-                sb.append("</select>");
-                sb.append("</div>\n");
-            } else {
-                sb.append("<input type=\"text\" class=\"input\" name=\"").append(escape(f.getName())).append("\" />\n");
-            }
 
+                sb.append("</div>\n");
+            }
             sb.append("</div>\n");
         }
 

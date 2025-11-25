@@ -70,6 +70,23 @@ body{
 /* ensure selects and inputs have consistent height */
 .input, select.input{ height:40px; }
 
+/* wrapper for rows */
+.form-rows{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+/* each row is a grid — the template sets grid-template-columns inline based on form.columns */
+.form-row{
+  display:grid;
+  grid-gap: 12px 18px;
+  align-items:start;
+}
+
+/* ensure items can shrink inside grid columns */
+.form-item{ min-width:0; }
+
 /* Responsive rules */
 /* Small phones: 1 column form, full-width button */
 @media (max-width: 600px) {
@@ -79,6 +96,7 @@ body{
   .form-grid{ grid-template-columns: 1fr !important; }
   .form-actions{ flex-direction: column-reverse; gap: 10px; align-items: stretch; }
   .form-actions .btn{ width: 100%; }
+  .form-row{ grid-template-columns: 1fr !important; }
 }
 
 /* Tablets / small desktops: prefer 2 columns */

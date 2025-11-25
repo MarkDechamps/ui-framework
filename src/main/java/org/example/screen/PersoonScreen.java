@@ -14,12 +14,12 @@ public class PersoonScreen extends AbstractScreen<PersoonDto> {
     @Override
     public Form createForm(FormBuilder formBuilder, PersoonDto persoon) {
         Form form = formBuilder.create(3);
-        form.add(persoon.naam);
-        form.add(persoon.voornaam);
-        form.add(persoon.geboorteDatum);
-        form.add(persoon.leeftijd);
-        form.add(persoon.geslacht);
+        formBuilder.add(persoon.naam);
+        formBuilder.add(persoon.voornaam);
+        formBuilder.newLine();
+        formBuilder.add(persoon.geboorteDatum);
+        formBuilder.add(persoon.leeftijd);
+        formBuilder.add(persoon.geslacht);
         return form;
     }
 }
-

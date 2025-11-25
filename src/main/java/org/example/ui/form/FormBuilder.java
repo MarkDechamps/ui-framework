@@ -8,8 +8,11 @@ import org.example.ui.field.TextField;
 
 public class FormBuilder {
 
+    private Form currentForm;
+
     public Form create(int columns) {
-        return new Form(columns);
+        currentForm = new Form(columns);
+        return currentForm;
     }
 
     public TextField text(String name, String label) {
@@ -28,5 +31,47 @@ public class FormBuilder {
         return new SelectField(name, label);
     }
 
-}
+    // convenience: add field to the current form (fluent)
+    public FormBuilder add(Field field) {
+        if (currentForm == null) throw new IllegalStateException("No form created. Call create(int) first.");
+        currentForm.add(field);
+        return this;
+    }
 
+    // convenience: end current row on the current form (fluent)
+    public FormBuilder newLine() {
+        if (currentForm == null) throw new IllegalStateException("No form created. Call create(int) first.");
+        currentForm.newLine();
+        return this;
+    }
+
+    public Form getCurrentForm() {
+        return currentForm;
+    }
+
+    // convenience combined methods: create field, add to current form, return the field for further configuration
+    public TextField addText(String name, String label) {
+        TextField f = new TextField(name, label);
+        add(f);
+        return f;
+    }
+
+    public NumberField addNumber(String name, String label, Integer min, Integer max) {
+        NumberField f = new NumberField(name, label, min, max);
+        add(f);
+        return f;
+    }
+
+    public DateField addDate(String name, String label) {
+        DateField f = new DateField(name, label);
+        add(f);
+        return f;
+    }
+
+    public SelectField addSelect(String name, String label) {
+        SelectField f = new SelectField(name, label);
+        add(f);
+        return f;
+    }
+
+}
