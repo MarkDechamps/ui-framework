@@ -22,7 +22,12 @@
             <button type="button" class="btn secondary lookup-close" aria-label="Sluiten">×</button>
         </div>
         <div class="lookup-body">
-            <input id="lookup-input" class="input" type="text" placeholder="Typ om te filteren..." />
+            <input id="lookup-input" class="input" type="text" placeholder="Typ om te filteren..."
+                   name="code"
+                   hx-get="/persoon/lookup/postcodes"
+                   hx-target="#lookup-list"
+                   hx-swap="innerHTML"
+                   hx-trigger="keyup changed delay:180ms" />
             <ul id="lookup-list" class="lookup-list" role="listbox" aria-label="Zoekresultaten"></ul>
         </div>
         <div class="lookup-footer">

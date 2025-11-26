@@ -65,8 +65,9 @@
       .catch(function(){ renderList([]); });
   }
 
+  // Debounce only when htmx is NOT present; with htmx we use hx-trigger on the input
   var debTimer = null;
-  if (inputEl) {
+  if (inputEl && !window.htmx) {
     inputEl.addEventListener('input', function(){
       clearTimeout(debTimer);
       var q = this.value;
@@ -96,9 +97,35 @@
       var url = btn.getAttribute('data-lookup-url') || (codeInput && codeInput.getAttribute('data-lookup-url'));
       if(url){
         openModal({ url: url, wrapper: wrapper, codeInput: codeInput, nameSpan: nameSpan, hidden: hidden });
+        // If htmx is present, trigger an initial fetch via htmx (so server renders <li> items)
+        if (window.htmx && inputEl) {
+          try {
+            // ensure input carries the current value under name="code"
+            if (!inputEl.name) inputEl.name = 'code';
+            // Fire the htmx trigger used in hx-trigger
+            window.htmx.trigger(inputEl, 'changed');
+          } catch(e) {}
+        } else {
+          // Fallback: manual fetch using JSON endpoint
+          fetchAndRender(inputEl ? inputEl.value : '');
+        }
       }
     }
   });
+
+  // Delegate clicks/Enter on server-rendered <li.lookup-item> (from htmx) to selection
+  if (listEl) {
+    listEl.addEventListener('click', function(e){
+      var li = e.target.closest && e.target.closest('li.lookup-item');
+      if (li) selectItem(li);
+    });
+    listEl.addEventListener('keydown', function(e){
+      if (e.key === 'Enter') {
+        var li = e.target.closest && e.target.closest('li.lookup-item');
+        if (li) selectItem(li);
+      }
+    });
+  }
 
   // Close interactions
   closeBtns = qAll('.lookup-close, .lookup-cancel');

@@ -4,6 +4,7 @@ package org.example.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
@@ -11,6 +12,7 @@ import org.example.screen.PersoonScreen;
 import org.example.render.ThymeleafRenderer;
 import org.example.dto.PersoonDto;
 import org.example.dto.PostcodeDto;
+import org.springframework.ui.Model;
 import java.util.*;
 
 @Controller
@@ -62,6 +64,41 @@ public class PersoonController {
             filtered.add(new PostcodeDto(c, c, ""));
         }
         return ResponseEntity.ok(filtered);
+    }
+
+    // htmx: return a fragment with <li class="lookup-item"> entries
+    @GetMapping(value = "/lookup/postcodes", produces = MediaType.TEXT_HTML_VALUE)
+    public String lookupPostcodes(@RequestParam(name = "code", required = false) String code, Model model) {
+        // Reuse the same filtering logic as JSON endpoint
+        List<PostcodeDto> results = new ArrayList<>();
+        addResult(results, "8500", "Kortrijk");
+        addResult(results, "8501", "Bissegem");
+        addResult(results, "1000", "Brussel");
+
+        String c = code == null ? "" : code.trim();
+        List<PostcodeDto> filtered = new ArrayList<>();
+        for (PostcodeDto r : results) {
+            if (c.isEmpty() || r.getCode().startsWith(c)) {
+                filtered.add(r);
+            }
+        }
+        if (filtered.isEmpty()) {
+            filtered.add(new PostcodeDto(c, c, ""));
+        }
+        model.addAttribute("list", filtered);
+        return "fragments/postcodes :: items";
+    }
+
+    // Optional selection endpoint (reserved for future OOB swap usage)
+    @PostMapping(value = "/lookup/select", produces = MediaType.TEXT_HTML_VALUE)
+    public String selectPostcode(@RequestParam("id") String id,
+                                 @RequestParam("code") String code,
+                                 @RequestParam("name") String name,
+                                 Model model) {
+        model.addAttribute("id", id);
+        model.addAttribute("code", code);
+        model.addAttribute("name", name);
+        return "fragments/postcodes :: selectionOob";
     }
 
     private static void addResult(List<PostcodeDto> list, String code, String name) {
