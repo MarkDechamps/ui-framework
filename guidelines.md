@@ -128,3 +128,17 @@ if (modal)   { modal.hidden   = true; modal.setAttribute('aria-hidden','true'); 
   - Reject identifiers like `doWork()`, `handleStuff()`. Prefer `renderFormBody()`, `openModal()`, `buildSelectOptions()`.
   - Require unit tests for complex logic and when fixing bugs.
   - Enforce consistent formatting and organize imports per project conventions.
+
+  ## 13) DTO Value Holders (public final fields)
+
+  - DTOs in this project are simple composition objects that expose value-holder fields used by the UI layer (e.g., `TextField`, `NumberField`, `DateField`, `SelectField`, `ReferenceField`, and similar domain value types such as `StringValue`).
+  - For these value-holder types inside a DTO, it is acceptable and often preferred to declare them as `public final`:
+    - Rationale: they are immutable references to self-contained components; exposing them simplifies screen assembly (`formBuilder.add(dto.naam)`), improves readability, and avoids boilerplate getters.
+    - These fields act like constants referencing UI/input descriptors rather than mutable internal state.
+  - When to prefer private with accessors:
+    - If a DTO needs to enforce invariants, lazy initialization, or swap implementations behind an interface, encapsulate with `private` fields and provide getters.
+    - If evolution suggests behavior beyond simple value holding, refactor towards encapsulation.
+  - Consistency rules:
+    - Pick one style per DTO: either expose value-holder fields as `public final`, or encapsulate them consistently across that DTO.
+    - Regardless of exposure, individual value-holder classes should manage their own internal invariants and provide fluent configuration methods.
+    - Do not expose mutable collections directly unless they are intended as configuration APIs; prefer unmodifiable views when returned from getters.

@@ -17,7 +17,18 @@ import java.util.*;
 @RequestMapping("/persoon")
 public class PersoonController {
 
-    private final ThymeleafRenderer renderer = new ThymeleafRenderer();
+    private final ThymeleafRenderer renderer;
+
+    // Primary constructor for DI
+    public PersoonController(ThymeleafRenderer renderer) {
+        this.renderer = renderer;
+    }
+
+    // Backwards-compatible no-arg constructor for tests that instantiate directly
+    @Deprecated
+    public PersoonController() {
+        this(new ThymeleafRenderer());
+    }
 
     @GetMapping(produces = MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<String> getPersoon() {

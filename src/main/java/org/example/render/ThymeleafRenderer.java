@@ -14,10 +14,12 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import org.example.ui.field.ReferenceField;
 
+@Component
 public class ThymeleafRenderer {
     private static final Logger log = LoggerFactory.getLogger(ThymeleafRenderer.class);
     private final TemplateEngine engine;
