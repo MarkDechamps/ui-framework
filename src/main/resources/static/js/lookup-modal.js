@@ -19,6 +19,13 @@
     currentCtx = ctx;
     if (!inputEl || !overlay || !modal) return;
     inputEl.value = (ctx.codeInput && ctx.codeInput.value) || '';
+    // Wanneer htmx aanwezig is, zorg dat ref wordt meegegeven bij requests
+    try {
+      if (window.htmx && ctx.ref) {
+        var vals = { ref: ctx.ref };
+        inputEl.setAttribute('hx-vals', JSON.stringify(vals));
+      }
+    } catch(e) {}
     renderList([]);
     show(overlay); show(modal);
     setTimeout(function(){ try { inputEl.focus(); inputEl.select(); } catch(e){} }, 0);
@@ -95,13 +102,15 @@
       var nameSpan = wrapper.querySelector('.reference-name');
       var hidden = wrapper.querySelector('input[type="hidden"]');
       var url = btn.getAttribute('data-lookup-url') || (codeInput && codeInput.getAttribute('data-lookup-url'));
+      var refName = (btn.getAttribute('data-ref-code') || (codeInput && codeInput.getAttribute('data-ref-code')) || '').trim();
       if(url){
-        openModal({ url: url, wrapper: wrapper, codeInput: codeInput, nameSpan: nameSpan, hidden: hidden });
+        openModal({ url: url, wrapper: wrapper, codeInput: codeInput, nameSpan: nameSpan, hidden: hidden, ref: refName });
         // If htmx is present, trigger an initial fetch via htmx (so server renders <li> items)
         if (window.htmx && inputEl) {
           try {
             // ensure input carries the current value under name="code"
             if (!inputEl.name) inputEl.name = 'code';
+            // hx-vals wordt in openModal gezet; forceer changed trigger met huidige waarde
             // Fire the htmx trigger used in hx-trigger
             window.htmx.trigger(inputEl, 'changed');
           } catch(e) {}
@@ -117,12 +126,17 @@
   if (listEl) {
     listEl.addEventListener('click', function(e){
       var li = e.target.closest && e.target.closest('li.lookup-item');
-      if (li) selectItem(li);
+      if (!li) return;
+      // Wanneer htmx aanwezig is en dit item een hx-post draagt, laat htmx het afhandelen (geen dubbele select)
+      if (window.htmx && (li.getAttribute('hx-post') || li.getAttribute('data-hx-post'))) return;
+      selectItem(li);
     });
     listEl.addEventListener('keydown', function(e){
       if (e.key === 'Enter') {
         var li = e.target.closest && e.target.closest('li.lookup-item');
-        if (li) selectItem(li);
+        if (!li) return;
+        if (window.htmx && (li.getAttribute('hx-post') || li.getAttribute('data-hx-post'))) return;
+        selectItem(li);
       }
     });
   }

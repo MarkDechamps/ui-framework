@@ -25,6 +25,7 @@
             <input id="lookup-input" class="input" type="text" placeholder="Typ om te filteren..."
                    name="code"
                    hx-get="/persoon/lookup/postcodes"
+                   hx-vals='{"ref":"postcode"}'
                    hx-target="#lookup-list"
                    hx-swap="innerHTML"
                    hx-trigger="keyup changed delay:180ms" />

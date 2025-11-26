@@ -13,6 +13,7 @@ import org.example.render.ThymeleafRenderer;
 import org.example.dto.PersoonDto;
 import org.example.dto.PostcodeDto;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import java.util.*;
 
 @Controller
@@ -45,47 +46,44 @@ public class PersoonController {
     // Simpele demo-lookup voor postcodes. In echte app zou dit service/DB call zijn.
     @GetMapping(value = "/findPostCodeById", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<PostcodeDto>> findPostCodeById(@RequestParam("code") String code) {
-        List<PostcodeDto> results = new ArrayList<>();
+        var results = new ArrayList<PostcodeDto>();
         // dummy data
         addResult(results, "8500", "Kortrijk");
         addResult(results, "8501", "Bissegem");
         addResult(results, "1000", "Brussel");
 
         // filter simpel op prefix match
-        String c = code == null ? "" : code.trim();
-        List<PostcodeDto> filtered = new ArrayList<>();
-        for (PostcodeDto r : results) {
-            if (c.isEmpty() || r.getCode().startsWith(c)) {
-                filtered.add(r);
-            }
-        }
+        var c = (code == null) ? "" : code.trim();
+        var filtered = results.stream()
+                .filter(r -> !StringUtils.hasText(c) || r.getCode().startsWith(c))
+                .toList();
         if (filtered.isEmpty()) {
             // als geen match, en code exact bestaat, retourneer één item met die code als naam onbepaald
-            filtered.add(new PostcodeDto(c, c, ""));
+            filtered = List.of(new PostcodeDto(c, c, ""));
         }
         return ResponseEntity.ok(filtered);
     }
 
     // htmx: return a fragment with <li class="lookup-item"> entries
     @GetMapping(value = "/lookup/postcodes", produces = MediaType.TEXT_HTML_VALUE)
-    public String lookupPostcodes(@RequestParam(name = "code", required = false) String code, Model model) {
+    public String lookupPostcodes(@RequestParam(name = "code", required = false) String code,
+                                  @RequestParam(name = "ref", required = false) String ref,
+                                  Model model) {
         // Reuse the same filtering logic as JSON endpoint
         List<PostcodeDto> results = new ArrayList<>();
         addResult(results, "8500", "Kortrijk");
         addResult(results, "8501", "Bissegem");
         addResult(results, "1000", "Brussel");
 
-        String c = code == null ? "" : code.trim();
-        List<PostcodeDto> filtered = new ArrayList<>();
-        for (PostcodeDto r : results) {
-            if (c.isEmpty() || r.getCode().startsWith(c)) {
-                filtered.add(r);
-            }
-        }
+        var c = (code == null) ? "" : code.trim();
+        var filtered = results.stream()
+                .filter(r -> !StringUtils.hasText(c) || r.getCode().startsWith(c))
+                .toList();
         if (filtered.isEmpty()) {
-            filtered.add(new PostcodeDto(c, c, ""));
+            filtered = List.of(new PostcodeDto(c, c, ""));
         }
         model.addAttribute("list", filtered);
+        model.addAttribute("ref", ref == null ? "postcode" : ref);
         return "fragments/postcodes :: items";
     }
 
@@ -94,10 +92,12 @@ public class PersoonController {
     public String selectPostcode(@RequestParam("id") String id,
                                  @RequestParam("code") String code,
                                  @RequestParam("name") String name,
+                                 @RequestParam(name = "ref", required = false, defaultValue = "postcode") String ref,
                                  Model model) {
         model.addAttribute("id", id);
         model.addAttribute("code", code);
         model.addAttribute("name", name);
+        model.addAttribute("ref", ref);
         return "fragments/postcodes :: selectionOob";
     }
 

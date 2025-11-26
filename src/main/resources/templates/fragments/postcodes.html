@@ -3,28 +3,39 @@
 <body>
 
 <!-- Renders the <ul> content for the lookup results -->
-<ul th:fragment="items(list)">
+<ul th:fragment="items(list, ref)">
   <li th:if="${#lists.isEmpty(list)}" class="lookup-item muted" tabindex="0">Geen resultaten</li>
   <li th:each="it : ${list}"
       class="lookup-item"
       tabindex="0"
       th:attr="data-id=${it.id},data-code=${it.code},data-name=${it.name}"
+      th:attrappend=" hx-post=/persoon/lookup/select"
+      th:attrappend=" hx-vals=${'{\\'ref\\':\\'' + ref + '\\',\\'id\\':\\'' + it.id + '\\',\\'code\\':\\'' + it.code + '\\',\\'name\\':\\'' + it.name + '\\'}'}"
+      hx-swap="none"
       th:text="${it.code} + ' — ' + ${it.name}"></li>
+  <!--
+    NB: Wanneer htmx aanwezig is zal click/Enter op het <li> een POST naar /persoon/lookup/select sturen
+    met ref/id/code/name. Zonder htmx blijft de clientside fallback in lookup-modal.js actief.
+  -->
 </ul>
 
-<!-- Optional OOB selection payload; not actively used yet but endpoint returns this -->
-<div th:fragment="selectionOob">
+<!-- OOB selection payload: werkt wanneer htmx aanwezig is -->
+<div th:fragment="selectionOob(ref, id, code, name)">
+  <!-- Update hidden value -->
+  <input type="hidden" th:id="${'ref-' + ref + '-hidden'}" th:value="${id}" hx-swap-oob="true" />
+  <!-- Update code input value -->
+  <input type="text" class="input" th:id="${'ref-' + ref + '-code'}" th:value="${code}" hx-swap-oob="true" />
+  <!-- Update display name text -->
+  <span th:id="${'ref-' + ref + '-name'}" th:text="${name}" hx-swap-oob="true"></span>
+  <!-- Dispatch close event so de modal sluit na selectie -->
   <script hx-swap-oob="true">
     (function(){
       try {
-        var ev = new CustomEvent('lookup:selected', { detail: { id: '[[${id}]]', code: '[[${code}]]', name: '[[${name}]]' } });
+        var ev = new CustomEvent('lookup:selected', { detail: { ref: '[[${ref}]]', id: '[[${id}]]', code: '[[${code}]]', name: '[[${name}]]' } });
         window.dispatchEvent(ev);
       } catch(e) {}
     })();
   </script>
-  <!-- Could include direct OOB DOM updates here if we assign stable IDs to inputs/spans -->
-  <span hx-swap-oob="true" id="noop-oob" style="display:none"></span>
-  <!-- noop element ensures valid HTML even if script tags are stripped by some proxies -->
 </div>
 
 </body>
