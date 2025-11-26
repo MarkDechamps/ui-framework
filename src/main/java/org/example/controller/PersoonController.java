@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.example.screen.PersoonScreen;
 import org.example.render.ThymeleafRenderer;
 import org.example.dto.PersoonDto;
+import org.example.dto.PostcodeDto;
 import java.util.*;
 
 @Controller
@@ -30,8 +31,8 @@ public class PersoonController {
 
     // Simpele demo-lookup voor postcodes. In echte app zou dit service/DB call zijn.
     @GetMapping(value = "/findPostCodeById", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Map<String, String>>> findPostCodeById(@RequestParam("code") String code) {
-        List<Map<String, String>> results = new ArrayList<>();
+    public ResponseEntity<List<PostcodeDto>> findPostCodeById(@RequestParam("code") String code) {
+        List<PostcodeDto> results = new ArrayList<>();
         // dummy data
         addResult(results, "8500", "Kortrijk");
         addResult(results, "8501", "Bissegem");
@@ -39,28 +40,20 @@ public class PersoonController {
 
         // filter simpel op prefix match
         String c = code == null ? "" : code.trim();
-        List<Map<String, String>> filtered = new ArrayList<>();
-        for (Map<String, String> r : results) {
-            if (c.isEmpty() || r.get("code").startsWith(c)) {
+        List<PostcodeDto> filtered = new ArrayList<>();
+        for (PostcodeDto r : results) {
+            if (c.isEmpty() || r.getCode().startsWith(c)) {
                 filtered.add(r);
             }
         }
         if (filtered.isEmpty()) {
             // als geen match, en code exact bestaat, retourneer één item met die code als naam onbepaald
-            Map<String, String> single = new HashMap<>();
-            single.put("id", c);
-            single.put("code", c);
-            single.put("name", "");
-            filtered.add(single);
+            filtered.add(new PostcodeDto(c, c, ""));
         }
         return ResponseEntity.ok(filtered);
     }
 
-    private static void addResult(List<Map<String,String>> list, String code, String name) {
-        Map<String, String> m = new HashMap<>();
-        m.put("id", code);
-        m.put("code", code);
-        m.put("name", name);
-        list.add(m);
+    private static void addResult(List<PostcodeDto> list, String code, String name) {
+        list.add(new PostcodeDto(code, code, name));
     }
 }
