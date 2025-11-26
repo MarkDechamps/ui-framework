@@ -114,3 +114,35 @@ body{
 @media (prefers-reduced-motion: reduce) {
   .input:focus{ box-shadow: none; }
 }
+
+/* Lookup modal styles */
+.lookup-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(1px);
+  z-index: 999;
+}
+.lookup-modal{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(600px, 90vw);
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+.lookup-header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 12px 14px; border-bottom: 1px solid #eef0f4;
+}
+.lookup-title{ margin:0; font-size:16px; }
+.lookup-body{ padding: 12px 14px; display:flex; flex-direction:column; gap:10px; }
+.lookup-list{ list-style:none; margin:0; padding:0; max-height: 260px; overflow:auto; border:1px solid #eef0f4; border-radius:8px; }
+.lookup-item{ padding:10px 12px; cursor:pointer; }
+.lookup-item:hover, .lookup-item:focus{ background:#f3f6fc; outline:none; }
+.lookup-footer{ padding: 10px 14px; border-top: 1px solid #eef0f4; display:flex; justify-content:flex-end; }

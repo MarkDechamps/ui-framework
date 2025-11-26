@@ -135,9 +135,12 @@ public class ThymeleafRenderer {
                     sb.append("<input type=\"text\" class=\"input\" name=\"")
                       .append(escape(rf.getName())).append("_code\"")
                       .append(" value=\"").append(escape(nullToEmpty(rf.getCode()))).append("\"")
-                      .append(" placeholder=\"code\" style=\"width:120px;\" />\n");
+                      .append(" placeholder=\"code\" style=\"width:120px;\"")
+                      .append(" data-lookup-url=\"").append(escape(nullToEmpty(rf.getLookupUrl()))).append("\"")
+                      .append(" />\n");
                     sb.append("<span class=\"reference-name\">").append(escape(nullToEmpty(rf.getDisplayName()))).append("</span>\n");
-                    sb.append("<button type=\"button\" class=\"btn icon\" title=\"Zoeken\" aria-label=\"Zoek\">");
+                    sb.append("<button type=\"button\" class=\"btn icon\" title=\"Zoeken\" aria-label=\"Zoek\" data-lookup-url=\"")
+                      .append(escape(nullToEmpty(rf.getLookupUrl()))).append("\">");
                     sb.append("<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z\" stroke=\"#374151\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>");
                     sb.append("</button>\n");
                     sb.append("<input type=\"hidden\" name=\"").append(escape(rf.getName())).append("\" value=\"")
@@ -158,6 +161,44 @@ public class ThymeleafRenderer {
         sb.append("</div>\n");
         sb.append("</main>\n");
         sb.append("</div>\n");
+
+        // Modal markup for fallback mode
+        sb.append("<div id=\"lookup-overlay\" class=\"lookup-overlay\" aria-hidden=\"true\" hidden></div>\n");
+        sb.append("<div id=\"lookup-modal\" class=\"lookup-modal\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"lookup-title\" hidden>\n");
+        sb.append("  <div class=\"lookup-header\">\n");
+        sb.append("    <h3 id=\"lookup-title\" class=\"lookup-title\">Zoek waarde</h3>\n");
+        sb.append("    <button type=\"button\" class=\"btn secondary lookup-close\" aria-label=\"Sluiten\">×</button>\n");
+        sb.append("  </div>\n");
+        sb.append("  <div class=\"lookup-body\">\n");
+        sb.append("    <input id=\"lookup-input\" class=\"input\" type=\"text\" placeholder=\"Typ om te filteren...\" />\n");
+        sb.append("    <ul id=\"lookup-list\" class=\"lookup-list\" role=\"listbox\" aria-label=\"Zoekresultaten\"></ul>\n");
+        sb.append("  </div>\n");
+        sb.append("  <div class=\"lookup-footer\">\n");
+        sb.append("    <button type=\"button\" class=\"btn secondary lookup-cancel\">Annuleer</button>\n");
+        sb.append("  </div>\n");
+        sb.append("</div>\n");
+
+        // Inline JS for modal behavior in fallback
+        sb.append("<script>(function(){\n"
+                + "var overlay=document.getElementById('lookup-overlay');\n"
+                + "var modal=document.getElementById('lookup-modal');\n"
+                + "var inputEl=document.getElementById('lookup-input');\n"
+                + "var listEl=document.getElementById('lookup-list');\n"
+                + "function show(el){el.hidden=false;el.setAttribute('aria-hidden','false');}\n"
+                + "function hide(el){el.hidden=true;el.setAttribute('aria-hidden','true');}\n"
+                + "var ctx=null;\n"
+                + "function openModal(c){ctx=c;inputEl.value=(c.codeInput&&c.codeInput.value)||'';render([]);show(overlay);show(modal);setTimeout(function(){inputEl.focus();inputEl.select();},0);fetchAndRender(inputEl.value);}\n"
+                + "function closeModal(){hide(modal);hide(overlay);if(ctx&&ctx.codeInput){ctx.codeInput.focus();}ctx=null;}\n"
+                + "function render(items){listEl.innerHTML='';items.forEach(function(it){var li=document.createElement('li');li.className='lookup-item';li.setAttribute('role','option');li.tabIndex=0;li.dataset.id=it.id||'';li.dataset.code=it.code||'';li.dataset.name=it.name||'';li.textContent=(it.code?it.code+' — ':'')+(it.name||'');li.addEventListener('dblclick',function(){select(li);});li.addEventListener('keydown',function(e){if(e.key==='Enter'){select(li);}});listEl.appendChild(li);});}\n"
+                + "function fetchAndRender(q){if(!ctx||!ctx.url)return;var u=ctx.url+'?code='+encodeURIComponent(q||'');fetch(u).then(function(r){return r.ok?r.json():[];}).then(function(list){render(Array.isArray(list)?list:[]);}).catch(function(){render([]);});}\n"
+                + "var t=null;inputEl.addEventListener('input',function(){clearTimeout(t);var q=this.value;t=setTimeout(function(){fetchAndRender(q);},180);});\n"
+                + "function select(li){if(!ctx)return;var code=li.dataset.code||'';var name=li.dataset.name||'';var id=li.dataset.id||code||'';if(ctx.codeInput)ctx.codeInput.value=code;if(ctx.nameSpan)ctx.nameSpan.textContent=name;if(ctx.hidden)ctx.hidden.value=id;closeModal();}\n"
+                + "document.addEventListener('click',function(e){var btn=e.target.closest('button.btn.icon[data-lookup-url]');if(btn){var w=btn.closest('.reference-field');if(!w)return;var code=w.querySelector('input.input[data-lookup-url]')||w.querySelector('input.input');var name=w.querySelector('.reference-name');var hid=w.querySelector('input[type=\"hidden\"]');var url=btn.getAttribute('data-lookup-url')||(code&&code.getAttribute('data-lookup-url'));if(url){openModal({url:url,wrapper:w,codeInput:code,nameSpan:name,hidden:hid});}}});\n"
+                + "Array.prototype.slice.call(document.querySelectorAll('.lookup-close,.lookup-cancel')).forEach(function(b){b.addEventListener('click',closeModal);});\n"
+                + "overlay.addEventListener('click',closeModal);\n"
+                + "document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!modal.hidden){closeModal();}});\n"
+                + "})();</script>");
+
         sb.append("</body></html>");
         return sb.toString();
     }

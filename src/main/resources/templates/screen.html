@@ -14,25 +14,92 @@
             </div>
         </form>
     </div>
+    <!-- Lookup Modal -->
+    <div id="lookup-overlay" class="lookup-overlay" aria-hidden="true" hidden></div>
+    <div id="lookup-modal" class="lookup-modal" role="dialog" aria-modal="true" aria-labelledby="lookup-title" hidden>
+        <div class="lookup-header">
+            <h3 id="lookup-title" class="lookup-title">Zoek waarde</h3>
+            <button type="button" class="btn secondary lookup-close" aria-label="Sluiten">×</button>
+        </div>
+        <div class="lookup-body">
+            <input id="lookup-input" class="input" type="text" placeholder="Typ om te filteren..." />
+            <ul id="lookup-list" class="lookup-list" role="listbox" aria-label="Zoekresultaten"></ul>
+        </div>
+        <div class="lookup-footer">
+            <button type="button" class="btn secondary lookup-cancel">Annuleer</button>
+        </div>
+    </div>
     <script>
         (function(){
-            function doLookup(input){
-                var code = input.value && input.value.trim();
-                var url = input.getAttribute('data-lookup-url');
-                if(!url || !code) { return; }
-                var wrapper = input.closest('.reference-field');
-                if(!wrapper) return;
-                fetch(url + '?code=' + encodeURIComponent(code))
+            var overlay = document.getElementById('lookup-overlay');
+            var modal = document.getElementById('lookup-modal');
+            var inputEl = document.getElementById('lookup-input');
+            var listEl = document.getElementById('lookup-list');
+            var closeBtns = [];
+            function qAll(sel){ return Array.prototype.slice.call(document.querySelectorAll(sel)); }
+            function show(el){ el.hidden = false; el.setAttribute('aria-hidden','false'); }
+            function hide(el){ el.hidden = true; el.setAttribute('aria-hidden','true'); }
+
+            var currentCtx = null; // { url, wrapper, codeInput, hidden, nameSpan }
+
+            function openModal(ctx){
+                currentCtx = ctx;
+                inputEl.value = (ctx.codeInput && ctx.codeInput.value) || '';
+                renderList([]);
+                show(overlay); show(modal);
+                setTimeout(function(){ inputEl.focus(); inputEl.select(); }, 0);
+                // Kick initial load
+                fetchAndRender(inputEl.value);
+            }
+
+            function closeModal(){
+                hide(modal); hide(overlay);
+                if(currentCtx && currentCtx.codeInput){ currentCtx.codeInput.focus(); }
+                currentCtx = null;
+            }
+
+            function renderList(items){
+                listEl.innerHTML = '';
+                items.forEach(function(it){
+                    var li = document.createElement('li');
+                    li.className = 'lookup-item';
+                    li.setAttribute('role','option');
+                    li.tabIndex = 0;
+                    li.dataset.id = it.id || '';
+                    li.dataset.code = it.code || '';
+                    li.dataset.name = it.name || '';
+                    li.textContent = (it.code ? it.code + ' — ' : '') + (it.name || '');
+                    li.addEventListener('dblclick', function(){ selectItem(li); });
+                    li.addEventListener('keydown', function(ev){ if(ev.key === 'Enter'){ selectItem(li); } });
+                    listEl.appendChild(li);
+                });
+            }
+
+            function fetchAndRender(query){
+                if(!currentCtx || !currentCtx.url) return;
+                var url = currentCtx.url + '?code=' + encodeURIComponent(query || '');
+                fetch(url)
                     .then(function(r){ return r.ok ? r.json() : []; })
-                    .then(function(list){
-                        if(!Array.isArray(list) || list.length === 0) return;
-                        var item = list[0];
-                        var nameSpan = wrapper.querySelector('.reference-name');
-                        var hidden = wrapper.querySelector('input[type="hidden"]');
-                        if(nameSpan && item.name) nameSpan.textContent = item.name;
-                        if(hidden && item.id) hidden.value = item.id;
-                    })
-                    .catch(function(){ /* ignore */ });
+                    .then(function(list){ renderList(Array.isArray(list) ? list : []); })
+                    .catch(function(){ renderList([]); });
+            }
+
+            var debTimer = null;
+            inputEl.addEventListener('input', function(){
+                clearTimeout(debTimer);
+                var q = this.value;
+                debTimer = setTimeout(function(){ fetchAndRender(q); }, 180);
+            });
+
+            function selectItem(li){
+                if(!currentCtx) return;
+                var code = li.dataset.code || '';
+                var name = li.dataset.name || '';
+                var id = li.dataset.id || code || '';
+                if(currentCtx.codeInput) currentCtx.codeInput.value = code;
+                if(currentCtx.nameSpan) currentCtx.nameSpan.textContent = name;
+                if(currentCtx.hidden) currentCtx.hidden.value = id;
+                closeModal();
             }
 
             document.addEventListener('click', function(e){
@@ -40,17 +107,21 @@
                 if(btn){
                     var wrapper = btn.closest('.reference-field');
                     if(!wrapper) return;
-                    var input = wrapper.querySelector('input.input');
-                    if(input) doLookup(input);
+                    var codeInput = wrapper.querySelector('input.input[data-lookup-url]') || wrapper.querySelector('input.input');
+                    var nameSpan = wrapper.querySelector('.reference-name');
+                    var hidden = wrapper.querySelector('input[type="hidden"]');
+                    var url = btn.getAttribute('data-lookup-url') || (codeInput && codeInput.getAttribute('data-lookup-url'));
+                    if(url){
+                        openModal({ url: url, wrapper: wrapper, codeInput: codeInput, nameSpan: nameSpan, hidden: hidden });
+                    }
                 }
             });
 
-            document.addEventListener('blur', function(e){
-                var el = e.target;
-                if(el && el.matches('input[data-lookup-url]')){
-                    doLookup(el);
-                }
-            }, true);
+            // Close interactions
+            closeBtns = qAll('.lookup-close, .lookup-cancel');
+            closeBtns.forEach(function(b){ b.addEventListener('click', closeModal); });
+            overlay.addEventListener('click', closeModal);
+            document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && !modal.hidden){ closeModal(); } });
         })();
     </script>
 </section>
