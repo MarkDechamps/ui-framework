@@ -4,7 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title th:text="${title}">Page</title>
-    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/styles.css?v=20251126" />
+    <style>
+        /* failsafe: force hidden elements to be invisible even if cache serves old CSS */
+        [hidden]{ display:none !important; }
+    </style>
 </head>
 <body>
 <div class="page-container">

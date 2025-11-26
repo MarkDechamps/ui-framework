@@ -73,7 +73,7 @@ public class ThymeleafRenderer {
         sb.append("<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"/>\n");
         sb.append("<title>").append(escape(title)).append("</title>\n");
         // link the same stylesheet used by templates so fallback is styled
-        sb.append("<link rel=\"stylesheet\" href=\"/css/styles.css\" />\n");
+        sb.append("<link rel=\"stylesheet\" href=\"/css/styles.css?v=20251126\" />\n");
         sb.append("</head><body>\n");
         sb.append("<div class=\"page-container\">\n");
         sb.append("<header class=\"page-header\"><h1>").append(escape(title)).append("</h1></header>\n");
@@ -197,6 +197,14 @@ public class ThymeleafRenderer {
                 + "Array.prototype.slice.call(document.querySelectorAll('.lookup-close,.lookup-cancel')).forEach(function(b){b.addEventListener('click',closeModal);});\n"
                 + "overlay.addEventListener('click',closeModal);\n"
                 + "document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!modal.hidden){closeModal();}});\n"
+                + "// Submit handler: bouw DTO en log naar console\n"
+                + "var form=document.querySelector('form.form-body');\n"
+                + "if(form){form.addEventListener('submit',function(ev){ev.preventDefault();var dto={};\n"
+                + "var fields=Array.prototype.slice.call(form.querySelectorAll('input, select, textarea'));\n"
+                + "var handled={};\n"
+                + "fields.forEach(function(el){if(el.type==='hidden'){var name=el.name;var w=el.closest('.reference-field');if(w){var code=w.querySelector('input.input[name$=\"_code\"]');var nm=w.querySelector('.reference-name');dto[name]={id:el.value||'',code:code?code.value:'',name:nm?nm.textContent:''};handled[name]=true;handled[name+'_code']=true;}}});\n"
+                + "fields.forEach(function(el){if(!el.name||handled[el.name])return;if(el.type==='hidden')return;dto[el.name]=el.value;});\n"
+                + "try{console.log('DTO submitted:',dto);console.log('DTO (json):',JSON.stringify(dto,null,2));}catch(e){console.log('DTO submitted (raw):',dto);} });}\n"
                 + "})();</script>");
 
         sb.append("</body></html>");
