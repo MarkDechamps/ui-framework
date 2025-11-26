@@ -32,6 +32,25 @@
                         </select>
                     </div>
 
+                    <!-- Reference composite control: code input + name + search button -->
+                    <div th:case="'reference'" class="reference-field" style="display:flex;gap:8px;align-items:center;">
+                        <input type="text"
+                               class="input"
+                               th:name="${field.name + '_code'}"
+                               th:value="${field.code}"
+                               th:attr="data-ref-code=${field.name},data-lookup-url=${field.lookupUrl}"
+                               placeholder="code" style="width:120px;" />
+                        <span class="reference-name" th:text="${field.displayName != null ? field.displayName : ''}">Naam</span>
+                        <button type="button"
+                                class="btn icon"
+                                title="Zoeken"
+                                th:attr="data-lookup-url=${field.lookupUrl},data-ref-code=${field.name}"
+                                aria-label="Zoek">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" stroke="#374151" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                        <input type="hidden" th:name="${field.name}" th:value="${field.idValue}" />
+                    </div>
+
                     <div th:case="*">
                         <input type="text" class="input" th:name="${field.name}" />
                     </div>

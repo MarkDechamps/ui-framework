@@ -4,6 +4,7 @@ import org.example.ui.field.SelectField;
 import org.example.ui.field.TextField;
 import org.example.ui.field.NumberField;
 import org.example.ui.field.DateField;
+import org.example.ui.field.ReferenceField;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -14,6 +15,9 @@ public class PersoonDto extends BaseDto {
     public final DateField geboorteDatum = new DateField("geboorteDatum", "Geboorte datum");
     public final NumberField leeftijd = new NumberField("leeftijd", "Leeftijd", 0, 150);
     public final SelectField geslacht = new SelectField("geslacht", "Geslacht");
+    public final ReferenceField postcode = new ReferenceField("postcode", "Postcode", "8500")
+            .displayName("Kortrijk")
+            .lookupUrl("/persoon/findPostCodeById");
 
     public PersoonDto() {
         List<SelectField.Option> opts = new ArrayList<>();

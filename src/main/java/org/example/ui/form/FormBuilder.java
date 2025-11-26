@@ -5,6 +5,7 @@ import org.example.ui.field.Field;
 import org.example.ui.field.NumberField;
 import org.example.ui.field.SelectField;
 import org.example.ui.field.TextField;
+import org.example.ui.field.ReferenceField;
 
 public class FormBuilder {
 
@@ -29,6 +30,10 @@ public class FormBuilder {
 
     public SelectField select(String name, String label) {
         return new SelectField(name, label);
+    }
+
+    public ReferenceField reference(String name, String label) {
+        return new ReferenceField(name, label);
     }
 
     // convenience: add field to the current form (fluent)
@@ -70,6 +75,12 @@ public class FormBuilder {
 
     public SelectField addSelect(String name, String label) {
         SelectField f = new SelectField(name, label);
+        add(f);
+        return f;
+    }
+
+    public ReferenceField addReference(String name, String label) {
+        ReferenceField f = new ReferenceField(name, label);
         add(f);
         return f;
     }

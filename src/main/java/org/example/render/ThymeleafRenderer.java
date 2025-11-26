@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import org.example.ui.field.ReferenceField;
 
 public class ThymeleafRenderer {
     private static final Logger log = LoggerFactory.getLogger(ThymeleafRenderer.class);
@@ -128,6 +129,20 @@ public class ThymeleafRenderer {
                     }
                     sb.append("</select>");
                     sb.append("</div>\n");
+                } else if (f instanceof ReferenceField) {
+                    ReferenceField rf = (ReferenceField) f;
+                    sb.append("<div class=\"reference-field\" style=\"display:flex;gap:8px;align-items:center;\">\n");
+                    sb.append("<input type=\"text\" class=\"input\" name=\"")
+                      .append(escape(rf.getName())).append("_code\"")
+                      .append(" value=\"").append(escape(nullToEmpty(rf.getCode()))).append("\"")
+                      .append(" placeholder=\"code\" style=\"width:120px;\" />\n");
+                    sb.append("<span class=\"reference-name\">").append(escape(nullToEmpty(rf.getDisplayName()))).append("</span>\n");
+                    sb.append("<button type=\"button\" class=\"btn icon\" title=\"Zoeken\" aria-label=\"Zoek\">");
+                    sb.append("<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z\" stroke=\"#374151\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>");
+                    sb.append("</button>\n");
+                    sb.append("<input type=\"hidden\" name=\"").append(escape(rf.getName())).append("\" value=\"")
+                      .append(escape(nullToEmpty(rf.getIdValue()))).append("\" />\n");
+                    sb.append("</div>\n");
                 } else {
                     sb.append("<input type=\"text\" class=\"input\" name=\"").append(escape(f.getName())).append("\" />\n");
                 }
@@ -163,5 +178,9 @@ public class ThymeleafRenderer {
         if (s == null) return "";
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
                 .replace("\"", "&quot;").replace("'", "&#39;");
+    }
+
+    private String nullToEmpty(String s) {
+        return s == null ? "" : s;
     }
 }

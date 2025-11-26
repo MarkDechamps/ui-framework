@@ -14,6 +14,45 @@
             </div>
         </form>
     </div>
+    <script>
+        (function(){
+            function doLookup(input){
+                var code = input.value && input.value.trim();
+                var url = input.getAttribute('data-lookup-url');
+                if(!url || !code) { return; }
+                var wrapper = input.closest('.reference-field');
+                if(!wrapper) return;
+                fetch(url + '?code=' + encodeURIComponent(code))
+                    .then(function(r){ return r.ok ? r.json() : []; })
+                    .then(function(list){
+                        if(!Array.isArray(list) || list.length === 0) return;
+                        var item = list[0];
+                        var nameSpan = wrapper.querySelector('.reference-name');
+                        var hidden = wrapper.querySelector('input[type="hidden"]');
+                        if(nameSpan && item.name) nameSpan.textContent = item.name;
+                        if(hidden && item.id) hidden.value = item.id;
+                    })
+                    .catch(function(){ /* ignore */ });
+            }
+
+            document.addEventListener('click', function(e){
+                var btn = e.target.closest('button.btn.icon[data-lookup-url]');
+                if(btn){
+                    var wrapper = btn.closest('.reference-field');
+                    if(!wrapper) return;
+                    var input = wrapper.querySelector('input.input');
+                    if(input) doLookup(input);
+                }
+            });
+
+            document.addEventListener('blur', function(e){
+                var el = e.target;
+                if(el && el.matches('input[data-lookup-url]')){
+                    doLookup(el);
+                }
+            }, true);
+        })();
+    </script>
 </section>
 </body>
 </html>

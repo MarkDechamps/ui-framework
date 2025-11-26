@@ -20,6 +20,8 @@ public class PersoonScreen extends AbstractScreen<PersoonDto> {
         formBuilder.add(persoon.geboorteDatum);
         formBuilder.add(persoon.leeftijd);
         formBuilder.add(persoon.geslacht);
+        formBuilder.newLine();
+        formBuilder.add(persoon.postcode);
         return form;
     }
 }
