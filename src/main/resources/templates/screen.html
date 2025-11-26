@@ -76,7 +76,8 @@
                     li.dataset.code = it.code || '';
                     li.dataset.name = it.name || '';
                     li.textContent = (it.code ? it.code + ' — ' : '') + (it.name || '');
-                    li.addEventListener('dblclick', function(){ selectItem(li); });
+                    // single click select (was dblclick)
+                    li.addEventListener('click', function(){ selectItem(li); });
                     li.addEventListener('keydown', function(ev){ if(ev.key === 'Enter'){ selectItem(li); } });
                     listEl.appendChild(li);
                 });
